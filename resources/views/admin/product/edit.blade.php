@@ -122,8 +122,9 @@
                                             </div>
                                         </div>
                                         <div class="mb-3">
-                                            <input type="number" min="0" name="qty" id="qty" class="form-control" placeholder="Qty" value="{{$product->qty}}">
-                                            <p class="error"></p>
+                                            <label for="qty">Total Quantity (auto-calculated)</label>
+                                            <input type="number" name="qty" id="qty" class="form-control" value="{{ $product->qty }}" readonly>
+                                            <p class="text-muted">This is calculated automatically from all variants.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -197,6 +198,63 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h2 class="h4 mb-3">Tags</h2>
+                                <div class="mb-3">
+                                    <select multiple class="tag-products w-100" name="tags[]" id="tag-products">
+                                        @foreach(array_unique($productTags) as $tag)
+                                            <option value="{{ $tag }}" selected>{{ $tag }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    <p class="error"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h2 class="h4 mb-3">Product Variants</h2>
+                                <div id="variant-wrapper">
+                                    @if($productDetails->isNotEmpty())
+                                        @foreach($productDetails as $index => $detail)
+                                            <div class="row mb-2 variant-row">
+                                                <input type="hidden" name="variants[{{ $index }}][id]" value="{{ $detail->id }}">
+                                                <div class="col-md-4">
+                                                    <input type="text" name="variants[{{ $index }}][color]" class="form-control" value="{{ $detail->color }}" placeholder="Color">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <input type="text" name="variants[{{ $index }}][size]" class="form-control" value="{{ $detail->size }}" placeholder="Size">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <input type="number" name="variants[{{ $index }}][qty]" class="form-control" value="{{ $detail->qty }}" placeholder="Qty">
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-variant">X</button>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <div class="row mb-2 variant-row">
+                                            <div class="col-md-4">
+                                                <input type="text" name="variants[0][color]" class="form-control" placeholder="Color">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" name="variants[0][size]" class="form-control" placeholder="Size">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input type="number" name="variants[0][qty]" class="form-control" placeholder="Qty">
+                                            </div>
+                                            <div class="col-md-1">
+                                                <button type="button" class="btn btn-danger btn-sm remove-variant">X</button>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                                <button type="button" id="add-variant" class="btn btn-outline-primary mt-3">+ Add Variant</button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -212,6 +270,32 @@
 @endsection
 @section('customJs')
     <script>
+        $('.tag-products').select2({
+            tags: true,
+            tokenSeparators: [','],
+            ajax: {
+                url: '{{ route('products.getTags') }}',
+                dataType: 'json',
+                delay: 250,
+                processResults: function (data) {
+                    console.log('Dữ liệu từ API:', data); // ✅ Kiểm tra dữ liệu API trả về
+
+                    let uniqueTags = [];
+                    let seen = new Set();
+
+                    data.tags.forEach(tag => {
+                        if (!seen.has(tag.id)) {
+                            uniqueTags.push({ id: tag.id, text: tag.name });
+                            seen.add(tag.id);
+                        }
+                    });
+
+                    return { results: uniqueTags }; // ✅ Đảm bảo không có tag trùng lặp
+                }
+            }
+        });
+
+
         $("#title").change(function() {
             element = $(this);
             $("button[type='submit']").prop('disabled', true);
@@ -330,5 +414,45 @@
                 });
             }
         }
+
+        let variantIndex = {{ $productDetails->count() ?? 1 }};
+
+        $("#add-variant").click(function () {
+            $("#variant-wrapper").append(`
+        <div class="row mb-2 variant-row">
+            <input type="hidden" name="variants[${variantIndex}][id]" value="">
+            <div class="col-md-4">
+                <input type="text" name="variants[${variantIndex}][color]" class="form-control" placeholder="Color">
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="variants[${variantIndex}][size]" class="form-control" placeholder="Size">
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="variants[${variantIndex}][qty]" class="form-control" placeholder="Qty">
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-danger btn-sm remove-variant">X</button>
+            </div>
+        </div>
+    `);
+            variantIndex++;
+        });
+
+        $(document).on('click', '.remove-variant', function () {
+            $(this).closest('.variant-row').remove();
+        });
+        function calculateTotalQty() {
+            let total = 0;
+            $('input[name^="variants"]').each(function () {
+                if ($(this).attr('name').includes('[qty]')) {
+                    let val = parseInt($(this).val()) || 0;
+                    total += val;
+                }
+            });
+            $('#qty').val(total);
+        }
+        $(document).on('input', 'input[name^="variants"]', function () {
+            calculateTotalQty();
+        });
     </script>
 @endsection

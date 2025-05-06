@@ -110,7 +110,7 @@
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <input type="number" min="0" name="qty" id="qty" class="form-control" placeholder="Qty">
+                                        <input type="number" min="0" name="qty" id="qty" class="form-control" placeholder="Qty" readonly>
                                         <p class="error"></p>
                                     </div>
                                 </div>
@@ -180,6 +180,38 @@
                             </div>
                         </div>
                     </div>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h2 class="h4 mb-3">Tags</h2>
+                            <div class="mb-3">
+                                <select multiple class="tag-products w-100" name="tags[]" id="tag-products"></select>
+                                <p class="error"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h2 class="h4 mb-3">Product Variants</h2>
+                            <div id="variant-wrapper">
+                                <div class="row mb-2 variant-row">
+                                    <div class="col-md-4">
+                                        <input type="text" name="variants[0][color]" class="form-control" placeholder="Color">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" name="variants[0][size]" class="form-control" placeholder="Size">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" name="variants[0][qty]" class="form-control" placeholder="Qty">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-danger btn-sm remove-variant">X</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="add-variant" class="btn btn-outline-primary mt-3">+ Add Variant</button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -195,6 +227,33 @@
 @endsection
 @section('customJs')
     <script>
+        $('.tag-products').select2({
+            tags: true,
+            tokenSeparators: [','],
+            ajax: {
+                url: '{{ route('products.getTags') }}',
+                dataType: 'json',
+                delay: 250,
+                processResults: function (data) {
+                    return {
+                        results: data.tags.map(tag => ({
+                            id: tag.id,  // ✅ Sửa lại: ID phải là số
+                            text: tag.text
+                        }))
+                    };
+                }
+            },
+            createTag: function (params) {
+                let term = $.trim(params.term);
+                if (term === '') {
+                    return null;
+                }
+                return { id: term, text: term, newTag: true }; // ✅ Cho phép nhập tag mới
+            }
+        });
+
+
+
         $("#title").change(function() {
             element = $(this);
             $("button[type='submit']").prop('disabled', true);
@@ -298,5 +357,48 @@
         function deleteImage(id){
             $("#image-row-"+id).remove();
         }
+
+        let variantIndex = 1;
+
+        $("#add-variant").click(function () {
+            $("#variant-wrapper").append(`
+        <div class="row mb-2 variant-row">
+            <div class="col-md-4">
+                <input type="text" name="variants[${variantIndex}][color]" class="form-control" placeholder="Color">
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="variants[${variantIndex}][size]" class="form-control" placeholder="Size">
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="variants[${variantIndex}][qty]" class="form-control" placeholder="Qty">
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-danger btn-sm remove-variant">X</button>
+            </div>
+        </div>
+    `);
+            variantIndex++;
+        });
+
+        $(document).on('click', '.remove-variant', function () {
+            $(this).closest('.variant-row').remove();
+            calculateTotalQty();
+        });
+
+        function calculateTotalQty() {
+            let total = 0;
+            $('input[name^="variants"]').each(function () {
+                if ($(this).attr('name').includes('[qty]')) {
+                    let val = parseInt($(this).val()) || 0;
+                    total += val;
+                }
+            });
+            $('#qty').val(total);
+        }
+
+        $(document).on('input', 'input[name^="variants"]', function () {
+            calculateTotalQty();
+        });
+
     </script>
 @endsection

@@ -11,12 +11,12 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $orders = Order::latest('order.created_at')->select('order.*','users.name','users.email');
-        $orders = $orders->leftJoin('users','users.id','order.user_id');
+        $orders = Order::latest('orders.created_at')->select('orders.*','users.name','users.email');
+        $orders = $orders->leftJoin('users','users.id','orders.user_id');
         if($request->get('keyword') != null){
             $orders = $orders->where('users.name','like','%'.$request->get('keyword').'%');
             $orders = $orders->orwhere('users.email','like','%'.$request->get('keyword').'%');
-            $orders = $orders->orwhere('order.id','like','%'.$request->get('keyword').'%');
+            $orders = $orders->orwhere('orders.id','like','%'.$request->get('keyword').'%');
         }
         $orders = $orders->paginate(10);
         return view('admin.order.list',[
@@ -26,9 +26,9 @@ class OrderController extends Controller
 
     public function detail($orderId)
     {
-        $order = Order::select('order.*','countries.name as country_name')
-                    ->where('order.id',$orderId)
-                    ->leftJoin('countries','countries.id','order.country_id')
+        $order = Order::select('orders.*','countries.name as country_name')
+                    ->where('orders.id',$orderId)
+                    ->leftJoin('countries','countries.id','orders.country_id')
                     ->first();
         $orderItems = OrderItem::where('order_id',$orderId)->get();
         return view('admin.order.detail',[

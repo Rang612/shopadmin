@@ -12,8 +12,11 @@
     <link rel="stylesheet" href="{{ asset('admin-asset/css/adminlte.min.css')}}">
     <link rel="stylesheet" href="{{ asset('admin-asset/plugins/dropzone/min/dropzone.min.css')}}">
     <link rel="stylesheet" href="{{ asset('admin-asset/plugins/summernote/summernote.min.css')}}">
+    <link rel="stylesheet" href="{{ asset('admin-asset/plugins/select2/css/select2.min.css')}}">
+
     <link rel="stylesheet" href="{{ asset('admin-asset/css/datetimepicker.css')}}">
     <link rel="stylesheet" href="{{ asset('admin-asset/css/custom.css') }}">
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="hold-transition sidebar-mini">
@@ -44,14 +47,14 @@
                     <img src="{{asset('admin-asset/img/avatar5.png')}}" class='img-circle elevation-2' width="40" height="40" alt="">
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-3">
-                    <h4 class="h4 mb-0"><strong>{{Auth::user()->name}}</strong></h4>
-                    <div class="mb-3">{{Auth::user()->email}}</div>
+                    <h4 class="h4 mb-0"><strong>{{Auth::guard('admin')->user()->name}}</strong></h4>
+                    <div class="mb-3">{{Auth::guard('admin')->user()->email}}</div>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
                         <i class="fas fa-user-cog mr-2"></i> Settings
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
+                    <a href="{{route('setting.showChangePasswordForm')}}" class="dropdown-item">
                         <i class="fas fa-lock mr-2"></i> Change Password
                     </a>
                     <div class="dropdown-divider"></div>
@@ -92,6 +95,7 @@
 <script src="{{ asset('admin-asset/plugins/summernote/summernote.min.js')}}"></script>
 <script src="{{ asset('admin-asset/plugins/select2/js/select2.min.js') }}"></script>
 <script src="{{ asset('admin-asset/js/datetimepicker.js') }}"></script>
+
 <!-- AdminLTE for demo purposes -->
 <script src="{{ asset('admin-asset/js/demo.js')}}"></script>
 <script type="text/javascript">

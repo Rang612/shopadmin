@@ -70,7 +70,7 @@
                                         @endif
                                     </td>
                                     <td><a href="#">{{$product->title}}</a></td>
-                                    <td>{{$product->price}}đ</td>
+                                    <td>{{ number_format($product->price, 0, ',', '.') }}VND</td>
                                     <td>{{$product->qty}}</td>
                                     <td>{{$product->sku}}</td>
                                     <td>

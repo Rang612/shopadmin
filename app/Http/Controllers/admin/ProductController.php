@@ -1,17 +1,21 @@
 <?php
 
 namespace App\Http\Controllers\admin;
-
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductComment;
+use App\Models\ProductDetail;
 use App\Models\ProductImage;
+use App\Models\ProductTag;
 use App\Models\SubCategory;
+use App\Models\Tag;
 use App\Models\TempImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 
 class ProductController extends Controller
@@ -73,6 +77,31 @@ class ProductController extends Controller
             $product->is_featured = $request->is_featured;
             $product->save();
 
+            if ($request->has('tags')) {
+                $tagIds = [];
+                foreach ($request->tags as $tagName) {
+                    $tag = Tag::firstOrCreate(
+                        ['name' => $tagName],
+                        ['slug' => Str::slug($tagName)]
+                    );
+                    $tagIds[] = $tag->id;
+                }
+                $product->tags()->sync($tagIds);
+            }
+
+            if ($request->has('variants')) {
+                foreach ($request->variants as $variant) {
+                    $product->productDetail()->create([
+                        'color' => $variant['color'],
+                        'size' => $variant['size'],
+                        'qty' => $variant['qty'],
+                    ]);
+                }
+            }
+
+                $totalQty = $product->productDetail()->sum('qty');
+                $product->qty = $totalQty;
+                $product->save();
             //Save Gallery Images
 
             if(!empty($request->image_array)){
@@ -131,6 +160,7 @@ class ProductController extends Controller
                     }
                 }
             }
+
             $request->session()->flash('success', 'Product added successfully');
 
             return response()->json([
@@ -148,7 +178,7 @@ class ProductController extends Controller
 
     public function edit($id, Request $request)
     {
-        $product = Product::find($id);
+        $product = Product::with(['productDetail', 'tags'])->find($id);
         if(empty($product)){
             return redirect()->route('products.index')->with('error', 'Product not found');
         }
@@ -156,6 +186,8 @@ class ProductController extends Controller
         $productImages = ProductImage::where('product_id', $product->id)->get();
 
         $sub_categories = SubCategory::where('category_id', $product->category_id)->get();
+        $productTags = $product->tags()->pluck('name')->unique()->toArray();
+//        dd($productTags);
 
         $data = [];
         $categories = Category::orderBy('name','ASC')->get();
@@ -165,6 +197,8 @@ class ProductController extends Controller
         $data['product'] = $product;
         $data['sub_categories'] = $sub_categories;
         $data['productImages'] = $productImages;
+        $data['productTags'] = $productTags;
+        $data['productDetails'] = $product->productDetail;
         return view('admin.product.edit', $data);
     }
 
@@ -203,8 +237,75 @@ class ProductController extends Controller
             $product->is_featured = $request->is_featured;
             $product->save();
 
+// Cập nhật thông tin sản phẩm
+            $product->update($request->except('tags'));
+
+            // ✅ Xử lý tags khi cập nhật
+            if ($request->has('tags')) {
+                $tagIds = [];
+
+                foreach ($request->tags as $tag) {
+                    if (is_numeric($tag)) { // Nếu tag đã tồn tại trong DB
+                        $tagIds[] = $tag;
+                    } else { // Nếu tag là chuỗi mới
+                        $tagName = str_replace('new:', '', $tag); // Xóa tiền tố 'new:'
+                        $newTag = Tag::firstOrCreate(
+                            ['name' => $tagName],
+                            ['slug' => Str::slug($tagName)]
+                        );
+                        $tagIds[] = $newTag->id;
+                    }
+                }
+
+                $product->tags()->sync($tagIds); // Đồng bộ tags
+            }
             //Save Gallery Images
 
+//            if ($request->has('variants')) {
+//                foreach ($request->variants as $variant) {
+//                    $product->productDetail()->updateOrCreate(
+//                        [
+//                            'color' => $variant['color'],
+//                            'size' => $variant['size'],
+//                        ],
+//                        [
+//                            'qty' => $variant['qty'],
+//                        ]
+//                    );
+//                }
+//            }
+            $submittedIds = [];
+
+            if ($request->has('variants')) {
+                foreach ($request->variants as $variant) {
+                    if (!empty($variant['id'])) {
+                        // UPDATE
+                        ProductDetail::where('id', $variant['id'])
+                            ->where('product_id', $product->id)
+                            ->update([
+                                'color' => $variant['color'],
+                                'size' => $variant['size'],
+                                'qty' => $variant['qty'],
+                            ]);
+                        $submittedIds[] = $variant['id'];
+                    } else {
+                        // CREATE
+                        $newDetail = $product->productDetail()->create([
+                            'color' => $variant['color'],
+                            'size' => $variant['size'],
+                            'qty' => $variant['qty'],
+                        ]);
+                        $submittedIds[] = $newDetail->id;
+                    }
+                }
+            }
+
+// DELETE những dòng không còn trong form
+            $product->productDetail()->whereNotIn('id', $submittedIds)->delete();
+
+            $totalQty = $product->productDetail()->sum('qty');
+            $product->qty = $totalQty;
+            $product->save();
             $request->session()->flash('success', 'Product updated successfully');
 
             return response()->json([
@@ -232,6 +333,10 @@ class ProductController extends Controller
             ]);
         }
 
+        // Xóa các bản ghi liên quan
+        ProductComment::where('product_id', $id)->delete();
+        ProductDetail::where('product_id', $id)->delete();
+        ProductTag::where('product_id', $id)->delete();
         $productImages = ProductImage::where('product_id', $id)->get();
 
         if(!empty($productImages)){
@@ -264,4 +369,16 @@ class ProductController extends Controller
                 'message'=>'Product deleted successfully'
             ]);
     }
+
+    public function getTags(Request $request)
+    {
+        $search = $request->input('q');
+
+        $tags = Tag::where('name', 'LIKE', "%{$search}%")
+            ->select('id', 'name as text') // Select đúng format cho select2
+            ->get();
+
+        return response()->json(['tags' => $tags]);
+    }
+
 }

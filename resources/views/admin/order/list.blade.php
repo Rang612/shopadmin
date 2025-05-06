@@ -56,13 +56,13 @@
                         <tbody>
                         @if ($orders->isNotEmpty())
                             @foreach($orders as $order)
-                                <tr>
-                                    <td><a href="{{route('orders.detail',[$order->id])}}">{{$order->id}}</a></td>
+                                <tr onclick="window.location='{{ route('orders.detail', [$order->id]) }}'" style="cursor: pointer;">
+                                    <td>{{$order->id}}</td>
                                     <td>{{$order->name}}</td>
                                     <td>{{$order->email}}</td>
                                     <td>{{$order->mobile}}</td>
                                     <td>
-                                       @if($order->status == 'pending')
+                                        @if($order->status == 'pending')
                                             <span class="badge badge-warning">Pending</span>
                                         @elseif($order->status == 'processing')
                                             <span class="badge badge-info">Processing</span>
@@ -72,12 +72,8 @@
                                             <span class="badge badge-danger">Declined</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        {{number_format($order->grand_total, 2)}}đ
-                                    </td>
-                                    <td>
-                                        {{\Carbon\Carbon::parse($order->created_at)->format('d M Y')}}
-                                    </td>
+                                    <td>{{ number_format($order->grand_total, 0, ',', '.') }}VND</td>
+                                    <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y') }}</td>
                                 </tr>
                                 <tr>
                             @endforeach

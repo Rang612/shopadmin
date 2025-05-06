@@ -33,5 +33,12 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
 
     }
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'product_tag');
+    }
+    public function productDetail(){
+        return $this->hasMany(ProductDetail::class,'product_id','id');
+    }
 
 }
