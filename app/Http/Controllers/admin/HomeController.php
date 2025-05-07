@@ -23,6 +23,7 @@ class HomeController extends Controller
      */
     public function index(): \Illuminate\Contracts\Support\Renderable
     {
+
         return view('admin/dashboard');
     }
 }

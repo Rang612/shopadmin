@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\admin\BlogController;
+use App\Http\Controllers\admin\DiscountCodeController;
 use App\Http\Controllers\admin\ProductController;
 use App\Http\Controllers\admin\StaffController;
+use App\Http\Controllers\Admin\StoreLocationController;
 use App\Http\Controllers\super_admin\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -63,12 +65,22 @@ Route::get('/home', [\App\Http\Controllers\admin\HomeController::class, 'index']
         Route::get('/admins/{admin}/edit', [AdminController::class, 'edit'])->name('admins.edit');
         Route::put('/admins/{admin}', [AdminController::class, 'update'])->name('admins.update');
         Route::delete('/admins/{admin}', [AdminController::class, 'destroy'])->name('admins.delete');
+
+        //Store Location Routes
+        Route::get('/store_locations', [StoreLocationController::class, 'index'])->name('store_location.index');
+        Route::get('/store_locations/create', [StoreLocationController::class, 'create'])->name('store_location.create');
+        Route::post('/store_locations', [StoreLocationController::class, 'store'])->name('store_location.store');
+        Route::get('/store-locations/{id}/edit', [StoreLocationController::class, 'edit'])->name('store_location.edit');
+        Route::put('/store-locations/{id}', [StoreLocationController::class, 'update'])->name('store_location.update');
+        Route::delete('/store-locations/{id}', [StoreLocationController::class, 'destroy'])->name('store_location.destroy');
+
     });
 Route::middleware(['auth:admin', 'check.admin.status'])->group(function () {
     //Order Routes
     Route::get('/orders', [\App\Http\Controllers\admin\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [\App\Http\Controllers\admin\OrderController::class, 'detail'])->name('orders.detail');
     Route::post('/orders/change-status/{id}', [\App\Http\Controllers\admin\OrderController::class, 'changeOrderStatus'])->name('orders.changeOrderStatus');
+    Route::get('/coupons/history', [DiscountCodeController::class, 'couponUsageHistory'])->name('admin.coupons.usage');
 
     //Blog Routes
     Route::get('/blogs', [BlogController::class, 'index'])->name('admin.blog.index');
@@ -76,6 +88,7 @@ Route::middleware(['auth:admin', 'check.admin.status'])->group(function () {
     Route::delete('blogs/{id}', [BlogController::class, 'destroy'])->name('admin.blog.destroy');
     Route::get('blogs/{id}', [BlogController::class, 'show'])->name('admin.blog.show');
     Route::delete('admin/comment/{id}', [BlogController::class, 'deleteComment'])->name('admin.comment.destroy');
+
 
 // Route dành cho Admin (Kiểm tra vai trò `admin`)
     Route::middleware(['role:admin'])->group(function () {

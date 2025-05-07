@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DiscountCoupon;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -174,6 +175,39 @@ class DiscountCodeController extends Controller
         return response()->json([
             'status' => true,
         ]);
-
     }
+
+    public function couponUsageHistory(Request $request)
+    {
+        $orders = Order::query()
+            ->select('orders.*')
+            ->with(['user', 'coupon'])
+            ->whereNotNull('coupon_code_id')
+            ->leftJoin('users', 'users.id', '=', 'orders.user_id')
+            ->leftJoin('discount_coupons', 'discount_coupons.id', '=', 'orders.coupon_code_id');
+
+        // Tìm kiếm keyword
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $orders->where(function ($query) use ($keyword) {
+                $query->where('users.name', 'like', "%{$keyword}%")
+                    ->orWhere('users.email', 'like', "%{$keyword}%")
+                    ->orWhere('orders.id', 'like', "%{$keyword}%")
+                    ->orWhere('discount_coupons.code', 'like', "%{$keyword}%");
+            });
+        }
+        // Lọc theo khoảng ngày
+        if ($request->filled('from_date')) {
+            $orders->whereDate('orders.created_at', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $orders->whereDate('orders.created_at', '<=', $request->to_date);
+        }
+        $orders = $orders->orderByDesc('orders.created_at')
+            ->paginate(20)
+            ->withQueryString();
+        return view('admin.history_coupon.usage_history', compact('orders'));
+    }
+
+
 }

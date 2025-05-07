@@ -19,24 +19,38 @@
                             <p>Dashboard</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="{{route('categories.index')}}" class="nav-link">
-                            <i class="nav-icon fas fa-file-alt"></i>
-                            <p>Category</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{route('sub-categories.index')}}" class="nav-link">
-                            <i class="nav-icon fas fa-file-alt"></i>
-                            <p>Sub Category</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{route('pages.index')}}" class="nav-link">
-                            <i class="nav-icon  far fa-file-alt"></i>
-                            <p>Pages</p>
-                        </a>
-                    </li>
+                <li class="nav-item">
+                    <a href="{{ route('categories.index') }}" class="nav-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon mr-2" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 4a2 2 0 012-2h4l2 2h8a2 2 0 012 2v1H2V4zm0 3h20v9a2 2 0 01-2 2H4a2 2 0 01-2-2V7z"/>
+                        </svg>
+                        <p>Category</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('sub-categories.index') }}" class="nav-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon mr-2" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 3h12a1 1 0 011 1v2H3V4a1 1 0 011-1zm-1 5h14v2H3V8zm0 4h14v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/>
+                        </svg>
+                        <p>Sub Category</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('pages.index') }}" class="nav-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon mr-2" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 2a2 2 0 012-2h5.586a1 1 0 01.707.293l3.414 3.414A1 1 0 0116 4.414V18a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm6 1v4h4l-4-4z"/>
+                        </svg>
+                        <p>Pages</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('store_location.index') }}" class="nav-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon mr-2" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 3a1 1 0 0 0-1 1v1.14a2 2 0 0 0 .51 1.33L4 7v10a1 1 0 0 0 1 1h2v-5h6v5h2a1 1 0 0 0 1-1V7l.49-.53A2 2 0 0 0 17 5.14V4a1 1 0 0 0-1-1H4zm1 2h10v.14a1 1 0 0 1-.25.67L14 7H6l-.75-.19A1 1 0 0 1 5 5.14V5z"/>
+                        </svg>
+                        <p>Store Location</p>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="{{route('admins.index')}}" class="nav-link">
                         <i class="nav-icon  fas fa-users"></i>
@@ -56,7 +70,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('products.index') }}" class="nav-link">
-                            <i class="nav-icon fas fa-tag"></i>
+                            <i class="nav-icon fas fa-shopping-bag"></i>
                             <p>Products</p>
                         </a>
                     </li>
@@ -69,7 +83,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="{{route('orders.index')}}" class="nav-link">
-                            <i class="nav-icon fas fa-shopping-bag"></i>
+                            <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>Orders</p>
                         </a>
                     </li>
@@ -79,6 +93,12 @@
                             <p>Discount</p>
                         </a>
                     </li>
+                <li class="nav-item">
+                    <a href="{{route('admin.coupons.usage')}}" class="nav-link">
+                        <i class="nav-icon  fa fa-tag" aria-hidden="true"></i>
+                        <p>Coupon Usage History</p>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="{{route('admin.blog.index')}}" class="nav-link">
                         <i class="nav-icon  fa fa-newspaper" aria-hidden="true"></i>
@@ -102,10 +122,10 @@
                 <!-- Route dành cho Support Staff -->
                 @if(Auth::guard('admin')->user() && Auth::guard('admin')->user()->role === 'support_staff')                    <li class="nav-item">
                     <li class="nav-item">
-                        <a href="{{ route('orders.index') }}" class="nav-link">
-                            <i class="nav-icon fas fa-shopping-bag"></i>
-                            <p>Orders</p>
-                        </a>
+                    <a href="{{route('orders.index')}}" class="nav-link">
+                        <i class="nav-icon fas fa-shopping-cart"></i>
+                        <p>Orders</p>
+                    </a>
                     </li>
                     <li class="nav-item">
                         <a href="{{route('admin.blog.index')}}" class="nav-link">
