@@ -65,7 +65,7 @@ class StoreLocationController extends Controller
             $image = $request->file('image');
             $fileName = time() . '_' . $image->getClientOriginalName();
             $image->storeAs('upload/store_location', $fileName, 'public');
-            $store->image = 'upload/store_location/' . $fileName;
+            $store->image = $fileName;
 
             // Upload lên Imgur
             $client = new Client();
@@ -130,12 +130,12 @@ class StoreLocationController extends Controller
 
         // Nếu có ảnh mới
         if ($request->hasFile('image')) {
-            // ✅ Xoá ảnh local cũ nếu có
+            // Xoá ảnh local cũ nếu có
             if ($store->image && Storage::disk('public')->exists($store->image)) {
                 Storage::disk('public')->delete($store->image);
             }
 
-            // ✅ Xoá ảnh Imgur cũ nếu có deletehash
+            // Xoá ảnh Imgur cũ nếu có deletehash
             if ($store->image_deletehash) {
                 try {
                     $client = new Client();
@@ -153,7 +153,7 @@ class StoreLocationController extends Controller
             $image = $request->file('image');
             $fileName = time() . '_' . $image->getClientOriginalName();
             $image->storeAs('upload/store_location', $fileName, 'public');
-            $store->image = 'upload/store_location/' . $fileName;
+            $store->image = $fileName;
             $client = new \GuzzleHttp\Client();
 
             // ✅ Upload lên Imgur

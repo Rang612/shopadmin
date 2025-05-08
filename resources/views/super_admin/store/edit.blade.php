@@ -69,7 +69,7 @@
                 <div class="form-group col-md-6">
                     <label>Current Image</label><br>
                     @if ($store->image)
-                        <img src="{{ asset('storage/' . $store->image) }}" width="100" class="mb-2"><br>
+                        <img src="{{ asset('storage/upload/store_location/' . $store->image) }}" width="100" class="mb-2"><br>
                     @else
                         <em>No image</em><br>
                     @endif

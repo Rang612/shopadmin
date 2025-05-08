@@ -70,7 +70,7 @@
                                     </td>
                                     <td>
                                         @if($store->image)
-                                            <img src="{{ asset('storage/' . $store->image) }}" width="60">
+                                            <img src="{{ asset('storage/upload/store_location/' . $store->image) }}" width="60">
                                         @else
                                             Not found
                                         @endif

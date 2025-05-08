@@ -15,6 +15,7 @@ class StoreLocation extends Model
         'phone',
         'opening_hours',
         'latitude',
-        'longitude'
+        'longitude',
+        'is_featured',
     ];
 }
