@@ -31,9 +31,9 @@ class LoginController extends Controller
     {
         // Kiểm tra role của admin sau khi đăng nhập
         if (Auth::guard('admin')->user()->role === 'super_admin') {
-            return '/categories';  // Redirect đến dashboard của super admin
+            return '/dashboard';  // Redirect đến dashboard của super admin
         } elseif (Auth::guard('admin')->user()->role === 'admin') {
-            return '/brands';  // Redirect đến trang categories cho admin
+            return '/dashboard';  // Redirect đến trang categories cho admin
         } elseif (Auth::guard('admin')->user()->role === 'support_staff') {
             return '/orders';  // Redirect đến trang orders cho support staff
         }

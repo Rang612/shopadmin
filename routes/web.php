@@ -30,10 +30,37 @@ Auth::routes();
 
 Route::get('/home', [\App\Http\Controllers\admin\HomeController::class, 'index'])->name('home');
 
+Route::middleware(['auth:admin', 'check.admin.status'])->group(function () {
+    //Dashboard Route
+    Route::get('/dashboard', [\App\Http\Controllers\super_admin\DashboardController::class, 'index'])->name('dashboard');
 
+    //Order Routes
+    Route::get('/orders', [\App\Http\Controllers\admin\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [\App\Http\Controllers\admin\OrderController::class, 'detail'])->name('orders.detail');
+    Route::post('/orders/change-status/{id}', [\App\Http\Controllers\admin\OrderController::class, 'changeOrderStatus'])->name('orders.changeOrderStatus');
+    Route::get('/coupons/history', [DiscountCodeController::class, 'couponUsageHistory'])->name('admin.coupons.usage');
 
-// Route dành cho Super Admin (Kiểm tra vai trò `super_admin`)
-    Route::middleware(['auth:admin', 'role:super_admin', 'check.admin.status'])->group(function () {
+    //Blog Routes
+    Route::get('/blogs', [BlogController::class, 'index'])->name('admin.blog.index');
+    Route::post('blogs/{id}/approve', [BlogController::class, 'approve'])->name('admin.blog.approve');
+    Route::delete('blogs/{id}', [BlogController::class, 'destroy'])->name('admin.blog.destroy');
+    Route::get('blogs/{id}', [BlogController::class, 'show'])->name('admin.blog.show');
+    Route::delete('admin/comment/{id}', [BlogController::class, 'deleteComment'])->name('admin.comment.destroy');
+
+    //Product Routes
+    Route::get('/products', [\App\Http\Controllers\admin\ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/create', [\App\Http\Controllers\admin\ProductController::class, 'create'])->name('products.create');
+    Route::post('/products', [\App\Http\Controllers\admin\ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{product}/edit', [\App\Http\Controllers\admin\ProductController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{product}', [\App\Http\Controllers\admin\ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}', [\App\Http\Controllers\admin\ProductController::class, 'destroy'])->name('products.delete');
+    Route::get('/products/get-tags', [\App\Http\Controllers\admin\ProductController::class, 'getTags'])->name('products.getTags');
+    Route::get('/product-subcategories', [\App\Http\Controllers\admin\ProductSubController::class, 'index'])->name('product-subcategories.index');
+    Route::post('/product-images/update', [\App\Http\Controllers\admin\ProductImageController::class, 'update'])->name('product-images.update');
+    Route::delete('/product-images', [\App\Http\Controllers\admin\ProductImageController::class, 'destroy'])->name('product-images.destroy');
+
+    // Route dành cho Super Admin (Kiểm tra vai trò `super_admin`)
+    Route::middleware(['role:super_admin'])->group(function () {
         //Category Routes
         Route::get('/categories', [\App\Http\Controllers\admin\CategoryController::class, 'index'])->name('categories.index');
         Route::get('/categories/create', [\App\Http\Controllers\admin\CategoryController::class, 'create'])->name('categories.create');
@@ -75,22 +102,7 @@ Route::get('/home', [\App\Http\Controllers\admin\HomeController::class, 'index']
         Route::delete('/store-locations/{id}', [StoreLocationController::class, 'destroy'])->name('store_location.destroy');
 
     });
-Route::middleware(['auth:admin', 'check.admin.status'])->group(function () {
-    //Order Routes
-    Route::get('/orders', [\App\Http\Controllers\admin\OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{id}', [\App\Http\Controllers\admin\OrderController::class, 'detail'])->name('orders.detail');
-    Route::post('/orders/change-status/{id}', [\App\Http\Controllers\admin\OrderController::class, 'changeOrderStatus'])->name('orders.changeOrderStatus');
-    Route::get('/coupons/history', [DiscountCodeController::class, 'couponUsageHistory'])->name('admin.coupons.usage');
-
-    //Blog Routes
-    Route::get('/blogs', [BlogController::class, 'index'])->name('admin.blog.index');
-    Route::post('blogs/{id}/approve', [BlogController::class, 'approve'])->name('admin.blog.approve');
-    Route::delete('blogs/{id}', [BlogController::class, 'destroy'])->name('admin.blog.destroy');
-    Route::get('blogs/{id}', [BlogController::class, 'show'])->name('admin.blog.show');
-    Route::delete('admin/comment/{id}', [BlogController::class, 'deleteComment'])->name('admin.comment.destroy');
-
-
-// Route dành cho Admin (Kiểm tra vai trò `admin`)
+    // Route dành cho Admin (Kiểm tra vai trò `admin`)
     Route::middleware(['role:admin'])->group(function () {
         // Brand Routes
         Route::get('/brands', [\App\Http\Controllers\admin\BrandController::class, 'index'])->name('brands.index');
@@ -99,18 +111,6 @@ Route::middleware(['auth:admin', 'check.admin.status'])->group(function () {
         Route::get('/brands/{brand}/edit', [\App\Http\Controllers\admin\BrandController::class, 'edit'])->name('brands.edit');
         Route::put('/brands/{brand}', [\App\Http\Controllers\admin\BrandController::class, 'update'])->name('brands.update');
         Route::delete('/brands/{brand}', [\App\Http\Controllers\admin\BrandController::class, 'destroy'])->name('brands.delete');
-
-        //Product Routes
-        Route::get('/products', [\App\Http\Controllers\admin\ProductController::class, 'index'])->name('products.index');
-        Route::get('/products/create', [\App\Http\Controllers\admin\ProductController::class, 'create'])->name('products.create');
-        Route::post('/products', [\App\Http\Controllers\admin\ProductController::class, 'store'])->name('products.store');
-        Route::get('/products/{product}/edit', [\App\Http\Controllers\admin\ProductController::class, 'edit'])->name('products.edit');
-        Route::put('/products/{product}', [\App\Http\Controllers\admin\ProductController::class, 'update'])->name('products.update');
-        Route::delete('/products/{product}', [\App\Http\Controllers\admin\ProductController::class, 'destroy'])->name('products.delete');
-        Route::get('/products/get-tags', [\App\Http\Controllers\admin\ProductController::class, 'getTags'])->name('products.getTags');
-        Route::get('/product-subcategories', [\App\Http\Controllers\admin\ProductSubController::class, 'index'])->name('product-subcategories.index');
-        Route::post('/product-images/update', [\App\Http\Controllers\admin\ProductImageController::class, 'update'])->name('product-images.update');
-        Route::delete('/product-images', [\App\Http\Controllers\admin\ProductImageController::class, 'destroy'])->name('product-images.destroy');
 
 
         //Shipping Routes
@@ -145,7 +145,7 @@ Route::middleware(['auth:admin', 'check.admin.status'])->group(function () {
         Route::delete('/staffs/{staff}', [StaffController::class, 'destroy'])->name('staffs.delete');
 
     });
-// Route dành cho Support Staff (Kiểm tra vai trò `support_staff`)
+    // Route dành cho Support Staff (Kiểm tra vai trò `support_staff`)
     Route::middleware(['role:support_staff'])->group(function () {
     });
 });
