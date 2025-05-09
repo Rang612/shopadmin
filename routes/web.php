@@ -94,12 +94,12 @@ Route::middleware(['auth:admin', 'check.admin.status'])->group(function () {
         Route::delete('/admins/{admin}', [AdminController::class, 'destroy'])->name('admins.delete');
 
         //Store Location Routes
-        Route::get('/store_locations', [StoreLocationController::class, 'index'])->name('store_location.index');
-        Route::get('/store_locations/create', [StoreLocationController::class, 'create'])->name('store_location.create');
-        Route::post('/store_locations', [StoreLocationController::class, 'store'])->name('store_location.store');
-        Route::get('/store-locations/{id}/edit', [StoreLocationController::class, 'edit'])->name('store_location.edit');
-        Route::put('/store-locations/{id}', [StoreLocationController::class, 'update'])->name('store_location.update');
-        Route::delete('/store-locations/{id}', [StoreLocationController::class, 'destroy'])->name('store_location.destroy');
+        Route::get('/store_locations', [\App\Http\Controllers\admin\StoreLocationController::class, 'index'])->name('store_location.index');
+        Route::get('/store_locations/create', [\App\Http\Controllers\admin\StoreLocationController::class, 'create'])->name('store_location.create');
+        Route::post('/store_locations', [\App\Http\Controllers\admin\StoreLocationController::class, 'store'])->name('store_location.store');
+        Route::get('/store-locations/{id}/edit', [\App\Http\Controllers\admin\StoreLocationController::class, 'edit'])->name('store_location.edit');
+        Route::put('/store-locations/{id}', [\App\Http\Controllers\admin\StoreLocationController::class, 'update'])->name('store_location.update');
+        Route::delete('/store-locations/{id}', [\App\Http\Controllers\admin\StoreLocationController::class, 'destroy'])->name('store_location.destroy');
 
     });
     // Route dành cho Admin (Kiểm tra vai trò `admin`)
