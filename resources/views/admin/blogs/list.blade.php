@@ -34,8 +34,8 @@
                     <td>{{ $blog->id }}</td>
                     <td>{{ $blog->title }}</td>
                     <td>
-                        @if($blog->image_url)
-                            <img src="{{ asset($blog->saved_image) }}" alt="Ảnh blog" width="150">
+                        @if($blog->image)
+                            <img src="{{ asset('uploads/blogs/' . $blog->image) }}" alt="Ảnh blog" width="150">
                         @else
                             <span class="text-muted">No photo</span>
                         @endif
@@ -69,7 +69,6 @@
             @endforelse
             </tbody>
         </table>
-
         {{ $blogs->links() }}
     </div>
 @endsection

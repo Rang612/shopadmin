@@ -17,7 +17,7 @@
     <div class="container">
         <h2>{{ $blog->title }}</h2>
         @if($blog->image)
-            <img src="{{ asset('storage/blogs/' . $blog->image) }}" width="300" class="mb-3">
+            <img src="{{ asset('uploads/blogs/' . $blog->image) }}" width="300" class="mb-3">
         @endif
         <p><strong>Posted by:</strong> {{ $blog->user->name ?? 'No data' }}</p>
         <p><strong>Category:</strong> {{ $blog->category }}</p>
