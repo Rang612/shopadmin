@@ -3,6 +3,7 @@
 use App\Http\Controllers\admin\BlogController;
 use App\Http\Controllers\admin\DiscountCodeController;
 use App\Http\Controllers\admin\ProductController;
+use App\Http\Controllers\admin\ProductImageController;
 use App\Http\Controllers\admin\StaffController;
 use App\Http\Controllers\Admin\StoreLocationController;
 use App\Http\Controllers\super_admin\AdminController;
@@ -58,6 +59,7 @@ Route::middleware(['auth:admin', 'check.admin.status'])->group(function () {
     Route::get('/product-subcategories', [\App\Http\Controllers\admin\ProductSubController::class, 'index'])->name('product-subcategories.index');
     Route::post('/product-images/update', [\App\Http\Controllers\admin\ProductImageController::class, 'update'])->name('product-images.update');
     Route::delete('/product-images', [\App\Http\Controllers\admin\ProductImageController::class, 'destroy'])->name('product-images.destroy');
+
 
     // Route dành cho Super Admin (Kiểm tra vai trò `super_admin`)
     Route::middleware(['role:super_admin'])->group(function () {

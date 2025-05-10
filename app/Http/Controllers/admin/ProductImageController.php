@@ -116,6 +116,7 @@ use Intervention\Image\Facades\Image;
 
 class ProductImageController extends Controller
 {
+
     public function update(Request $request)
     {
         $image = $request->image;
