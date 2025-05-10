@@ -235,22 +235,23 @@
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {
-                    return {
-                        results: data.tags.map(tag => ({
-                            id: tag.id,  // ✅ Sửa lại: ID phải là số
-                            text: tag.text
-                        }))
-                    };
+                    console.log('Dữ liệu từ API:', data); // ✅ Kiểm tra dữ liệu API trả về
+
+                    let uniqueTags = [];
+                    let seen = new Set();
+
+                    data.tags.forEach(tag => {
+                        if (!seen.has(tag.id)) {
+                            uniqueTags.push({ id: tag.id, text: tag.name });
+                            seen.add(tag.id);
+                        }
+                    });
+
+                    return { results: uniqueTags }; // ✅ Đảm bảo không có tag trùng lặp
                 }
-            },
-            createTag: function (params) {
-                let term = $.trim(params.term);
-                if (term === '') {
-                    return null;
-                }
-                return { id: term, text: term, newTag: true }; // ✅ Cho phép nhập tag mới
             }
         });
+
 
 
 
