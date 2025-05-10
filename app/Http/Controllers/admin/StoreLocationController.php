@@ -337,16 +337,13 @@ class StoreLocationController extends Controller
     public function destroy($id)
     {
         $store = StoreLocation::findOrFail($id);
-
         if ($store->image) {
             $path = '/var/www/shared_uploads/store/' . $store->image;
             if (file_exists($path)) {
                 unlink($path);
             }
         }
-
         $store->delete();
-
         return response()->json(['status' => true]);
     }
 }
