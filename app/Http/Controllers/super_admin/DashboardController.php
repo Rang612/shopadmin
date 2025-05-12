@@ -18,10 +18,10 @@ class DashboardController extends Controller
         $totalOrders = Order::where('status','!=', 'decline')->count();
         $totalProducts = Product::count();
         $totalUsers = User::count();
-        $totalRevenus = Order::where('status','!=', 'decline')->sum('grand_total');
+        $totalRevenus = Order::where('status', 'completed')->sum('grand_total');
         $startOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d');
         $currentDate = Carbon::now()->format('Y-m-d');
-        $revenueThisMonth = Order::where('status','!=', 'decline')
+        $revenueThisMonth = Order::where('status', 'completed')
             ->whereDate('created_at', '>=', $startOfMonth)
             ->whereDate('created_at', '<=', $currentDate)
             ->sum('grand_total');
@@ -29,12 +29,12 @@ class DashboardController extends Controller
         $lastMonthStartDate = Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d');
         $lastMonthEndDate = Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d');
         $lastMonthName = Carbon::now()->subMonth()->startOfMonth()->format('M');
-        $revenueLastMonth = Order::where('status','!=', 'decline')
+        $revenueLastMonth = Order::where('status', 'completed')
             ->whereDate('created_at', '>=', $lastMonthStartDate)
             ->whereDate('created_at', '<=', $lastMonthEndDate)
             ->sum('grand_total');
         // Monthly revenue
-        $monthlyRevenue = Order::where('status', '!=', 'decline')
+        $monthlyRevenue =  Order::where('status', 'completed')
             ->whereYear('created_at', now()->year)
             ->selectRaw('MONTH(created_at) as month, SUM(grand_total) as total')
             ->groupBy('month')

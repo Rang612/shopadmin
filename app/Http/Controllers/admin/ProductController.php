@@ -200,6 +200,8 @@ class ProductController extends Controller
         }
 
         $product->fill($request->except('tags', 'variants'));
+        $product->category_id = $request->category;
+        $product->sub_category_id = $request->sub_category;
         $product->save();
 
         // Tags
